@@ -13,7 +13,7 @@ import kz.onelab.movieapp.R
 import kz.onelab.movieapp.databinding.ItemMovieBinding
 import kz.onelab.movieapp.presentation.model.Movie
 
-class PopularMoviesAdapter : ListAdapter<Movie, MovieViewHolder>(DIFF_CALLBACK) {
+class PopularMoviesAdapter(private val onFavoriteClick: (Movie, Boolean) -> Unit) : ListAdapter<Movie, MovieViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -22,7 +22,14 @@ class PopularMoviesAdapter : ListAdapter<Movie, MovieViewHolder>(DIFF_CALLBACK) 
     }
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val movie = getItem(position)
+        holder.bind(movie)
+
+        holder.binding.favoriteIcon.setOnClickListener {
+            movie.isFavorite = !movie.isFavorite
+             val isFavorite = onFavoriteClick(movie, movie.isFavorite)
+            holder.binding.favoriteIcon.setImageResource(if (movie.isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border)
+        }
     }
 
     companion object {
@@ -38,7 +45,7 @@ class PopularMoviesAdapter : ListAdapter<Movie, MovieViewHolder>(DIFF_CALLBACK) 
     }
 }
 
-class MovieViewHolder(private val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root) {
+class MovieViewHolder(val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(movie: Movie) {
         with(binding) {
